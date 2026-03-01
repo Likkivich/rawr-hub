@@ -1,10 +1,8 @@
 // api/callback.js
-// Vercel вызывает этот файл когда Discord редиректит пользователя обратно
-
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const DISCORD_SERVER_ID = process.env.DISCORD_SERVER_ID; // ID твоего сервера RAWR
-const REDIRECT_URI = process.env.REDIRECT_URI; // https://твойсайт.vercel.app/api/callback
+const DISCORD_SERVER_ID = process.env.DISCORD_SERVER_ID;
+const REDIRECT_URI = process.env.REDIRECT_URI;
 
 export default async function handler(req, res) {
   const { code } = req.query;
@@ -28,7 +26,6 @@ export default async function handler(req, res) {
     });
 
     const tokenData = await tokenRes.json();
-
     if (!tokenData.access_token) {
       return res.redirect('/?error=token_failed');
     }
@@ -39,16 +36,15 @@ export default async function handler(req, res) {
     });
     const user = await userRes.json();
 
-    // 3. Проверяем — состоит ли юзер в сервере RAWR
-    const memberRes = await fetch(
-      `https://discord.com/api/users/@me/guilds`,
-      { headers: { Authorization: `Bearer ${tokenData.access_token}` } }
-    );
-    const guilds = await memberRes.json();
+    // 3. Проверяем членство на сервере
+    const guildsRes = await fetch('https://discord.com/api/users/@me/guilds', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    });
+    const guilds = await guildsRes.json();
     const isMember = guilds.some(g => g.id === DISCORD_SERVER_ID);
 
-    // 4. Редиректим на /hub с данными в query (для демо; в продакшене лучше JWT/cookie)
-    const params = new URLSearchParams({
+    // 4. Сохраняем сессию в cookie (живёт 7 дней)
+    const sessionData = JSON.stringify({
       username: user.username,
       discriminator: user.discriminator || '0',
       avatar: user.avatar || '',
@@ -56,7 +52,14 @@ export default async function handler(req, res) {
       member: isMember ? '1' : '0',
     });
 
-    res.redirect(`/hub.html?${params}`);
+    const encoded = Buffer.from(sessionData).toString('base64');
+
+    res.setHeader('Set-Cookie',
+      `rawr_session=${encoded}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}`
+    );
+
+    // 5. Редиректим на hub — без данных в URL
+    res.redirect('/hub.html');
 
   } catch (err) {
     console.error(err);
