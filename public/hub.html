@@ -259,7 +259,7 @@ body { background:var(--bg); color:var(--text); font-family:'Oxanium',sans-serif
         <div class="u-tag" id="uTag">#0000</div>
       </div>
       <div class="badge" id="uBadge">...</div>
-      <button class="logout-btn" onclick="location.href='/'">✕</button>
+      <button class="logout-btn" onclick="location.href='/api/logout'">✕</button>
     </div>
   </div>
 
@@ -386,57 +386,67 @@ body { background:var(--bg); color:var(--text); font-family:'Oxanium',sans-serif
 </div>
 
 <script>
-// Читаем параметры из URL после OAuth редиректа
-const p = new URLSearchParams(location.search);
-const username = p.get('username') || 'Неизвестный';
-const discriminator = p.get('discriminator') || '0';
-const avatarHash = p.get('avatar');
-const userId = p.get('id');
-const isMember = p.get('member') === '1';
-
-// Если нет параметров — редиректим на логин
-if (!p.get('username')) {
-  location.href = '/';
+// Загружаем данные сессии из cookie через API
+async function loadSession() {
+  try {
+    const res = await fetch('/api/session');
+    if (res.status === 401) {
+      // Нет сессии — на логин
+      window.location.href = '/';
+      return;
+    }
+    const data = await res.json();
+    applyUserData(data);
+  } catch {
+    window.location.href = '/';
+  }
 }
 
-// Заполняем UI
-document.getElementById('greetName').textContent = username;
-document.getElementById('uName').textContent = username;
-document.getElementById('uTag').textContent = discriminator !== '0' ? '#' + discriminator : '';
-document.getElementById('greetSub').textContent = `> сессия активна · ${new Date().toLocaleTimeString('ru')}`;
+function applyUserData(data) {
+  const { username, discriminator, avatar, id, member } = data;
+  const isMember = member === '1';
 
-const initials = username.slice(0,2).toUpperCase();
-document.getElementById('uInitials').textContent = initials;
+  // Заполняем UI
+  document.getElementById('greetName').textContent = username;
+  document.getElementById('uName').textContent = username;
+  document.getElementById('uTag').textContent = discriminator && discriminator !== '0' ? '#' + discriminator : '';
+  document.getElementById('greetSub').textContent = `> сессия активна · ${new Date().toLocaleTimeString('ru')}`;
 
-// Аватар
-if (avatarHash && userId) {
-  const img = document.createElement('img');
-  img.src = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=64`;
-  img.alt = username;
-  document.getElementById('uAvatar').appendChild(img);
+  const initials = username.slice(0,2).toUpperCase();
+  document.getElementById('uInitials').textContent = initials;
+
+  // Аватар
+  if (avatar && id) {
+    const img = document.createElement('img');
+    img.src = `https://cdn.discordapp.com/avatars/${id}/${avatar}.png?size=64`;
+    img.alt = username;
+    document.getElementById('uAvatar').appendChild(img);
+  }
+
+  // Бейдж и баннер
+  const badge = document.getElementById('uBadge');
+  const banner = document.getElementById('banner');
+
+  if (isMember) {
+    badge.className = 'badge member';
+    badge.textContent = '✓ УЧАСТНИК';
+    banner.className = 'banner member';
+    document.getElementById('bannerIcon').textContent = '✅';
+    document.getElementById('bannerTitle').textContent = 'Ты участник RAWR';
+    document.getElementById('bannerDesc').textContent = 'Полный доступ открыт. Добро пожаловать в команду!';
+    document.getElementById('bannerBtn').textContent = 'Открыть Discord';
+  } else {
+    badge.className = 'badge guest';
+    badge.textContent = '✗ НЕ УЧАСТНИК';
+    banner.className = 'banner guest';
+    document.getElementById('bannerIcon').textContent = '⚠️';
+    document.getElementById('bannerTitle').textContent = 'Тебя нет на сервере RAWR';
+    document.getElementById('bannerDesc').textContent = 'Вступи в Discord — и получишь полный доступ к HUB.';
+    document.getElementById('bannerBtn').textContent = '+ Вступить';
+  }
 }
 
-// Бейдж и баннер
-const badge = document.getElementById('uBadge');
-const banner = document.getElementById('banner');
-
-if (isMember) {
-  badge.className = 'badge member';
-  badge.textContent = '✓ УЧАСТНИК';
-  banner.className = 'banner member';
-  document.getElementById('bannerIcon').textContent = '✅';
-  document.getElementById('bannerTitle').textContent = 'Ты участник RAWR';
-  document.getElementById('bannerDesc').textContent = 'Полный доступ открыт. Добро пожаловать в команду!';
-  document.getElementById('bannerBtn').textContent = 'Открыть Discord';
-} else {
-  badge.className = 'badge guest';
-  badge.textContent = '✗ НЕ УЧАСТНИК';
-  banner.className = 'banner guest';
-  document.getElementById('bannerIcon').textContent = '⚠️';
-  document.getElementById('bannerTitle').textContent = 'Тебя нет на сервере RAWR';
-  document.getElementById('bannerDesc').textContent = 'Вступи в Discord — и получишь полный доступ к HUB.';
-  document.getElementById('bannerBtn').textContent = '+ Вступить';
-}
+loadSession();
 
 // Навигация
 document.querySelectorAll('.topbar-nav button').forEach(btn => {
