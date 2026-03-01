@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAWR HUB</title>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06080f; --panel: #0c0f1a; --panel2: #111525;
+  --border: rgba(255,255,255,0.06); --disc: #5865F2; --disc-hover: #7289da;
+  --green: #57F287; --red: #ED4245; --yellow: #FEE75C;
+  --text: #e8edf8; --muted: #4a5070; --muted2: #8890b0;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; overflow:hidden; }
+body { background:var(--bg); color:var(--text); font-family:'Oxanium',sans-serif; }
+
+.bg-grid {
+  position:fixed; inset:0; pointer-events:none;
+  background-image: linear-gradient(rgba(88,101,242,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(88,101,242,0.03) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.hub-layout {
+  display:grid;
+  grid-template-columns:220px 1fr 260px;
+  grid-template-rows:54px 1fr;
+  height:100vh;
+}
+
+/* TOPBAR */
+.topbar {
+  grid-column:1/-1;
+  background:rgba(12,15,26,0.97);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:14px; padding:0 20px;
+  backdrop-filter:blur(10px);
+}
+.topbar-logo {
+  font-size:1.25rem; font-weight:800; letter-spacing:0.2em;
+  background:linear-gradient(135deg,#fff,var(--disc));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.topbar-sep { width:1px; height:18px; background:var(--border); }
+.topbar-nav { display:flex; gap:2px; flex:1; }
+.topbar-nav button {
+  background:none; border:none; font-family:'Oxanium',sans-serif;
+  font-size:0.72rem; font-weight:600; letter-spacing:0.08em;
+  color:var(--muted2); padding:6px 12px; cursor:pointer;
+  transition:color 0.2s,background 0.2s; border-radius:3px;
+}
+.topbar-nav button.active { color:var(--text); background:rgba(88,101,242,0.1); }
+.topbar-nav button:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+
+.topbar-user {
+  margin-left:auto; display:flex; align-items:center; gap:9px;
+  padding:5px 10px; border:1px solid var(--border); cursor:default;
+  transition:border-color 0.2s;
+}
+.topbar-user:hover { border-color:rgba(88,101,242,0.3); }
+.u-avatar {
+  width:28px; height:28px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; font-weight:700; color:#fff; position:relative;
+  background:linear-gradient(135deg,var(--disc),#8a5cf6);
+  overflow:hidden;
+}
+.u-avatar img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.u-dot {
+  position:absolute; bottom:0; right:0;
+  width:8px; height:8px; border-radius:50%;
+  background:var(--green); border:2px solid var(--panel);
+}
+.u-name { font-size:0.78rem; font-weight:600; letter-spacing:0.04em; }
+.u-tag { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted2); }
+.badge {
+  font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.08em;
+  padding:2px 7px; border-radius:2px; border:1px solid; white-space:nowrap;
+}
+.badge.member { background:rgba(87,242,135,0.08); border-color:rgba(87,242,135,0.25); color:var(--green); }
+.badge.guest  { background:rgba(237,66,69,0.08);  border-color:rgba(237,66,69,0.25);  color:var(--red); }
+.logout-btn {
+  background:none; border:none; color:var(--muted); cursor:pointer;
+  font-size:0.9rem; padding:4px 6px; transition:color 0.2s; font-family:monospace;
+}
+.logout-btn:hover { color:var(--red); }
+
+/* SIDEBAR */
+.sidebar {
+  background:var(--panel); border-right:1px solid var(--border);
+  overflow-y:auto; padding:18px 0;
+}
+.sidebar::-webkit-scrollbar { width:3px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border); }
+.s-section { margin-bottom:20px; padding:0 14px; }
+.s-label {
+  font-family:'JetBrains Mono',monospace; font-size:0.52rem;
+  letter-spacing:0.25em; color:var(--muted); text-transform:uppercase;
+  margin-bottom:6px; padding:0 6px;
+}
+.s-item {
+  display:flex; align-items:center; gap:9px; padding:7px 8px;
+  border-radius:3px; cursor:pointer; color:var(--muted2);
+  font-size:0.78rem; font-weight:600; letter-spacing:0.03em;
+  transition:background 0.15s,color 0.15s; position:relative;
+}
+.s-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
+.s-item.active { background:rgba(88,101,242,0.1); color:var(--text); }
+.s-item.active::before {
+  content:''; position:absolute; left:0; top:4px; bottom:4px;
+  width:2px; background:var(--disc); border-radius:0 2px 2px 0;
+}
+.s-icon { font-size:0.95rem; width:18px; text-align:center; flex-shrink:0; }
+.s-badge {
+  margin-left:auto; background:var(--disc); color:#fff;
+  font-family:'JetBrains Mono',monospace; font-size:0.48rem; font-weight:700;
+  padding:1px 5px; border-radius:8px; min-width:16px; text-align:center;
+}
+.s-badge.g { background:var(--green); color:#000; }
+
+/* MAIN */
+.hub-main {
+  background:var(--bg); overflow-y:auto; padding:24px 28px;
+}
+.hub-main::-webkit-scrollbar { width:3px; }
+.hub-main::-webkit-scrollbar-thumb { background:var(--border); }
+
+.greeting { margin-bottom:22px; animation:fadeUp 0.5s both; }
+.greeting h1 { font-size:1.5rem; font-weight:800; letter-spacing:0.04em; margin-bottom:3px; }
+.greeting h1 span { color:var(--disc); }
+.greeting p { font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--muted2); letter-spacing:0.04em; }
+
+/* Status banner */
+.banner {
+  display:flex; align-items:center; gap:12px; padding:14px 18px;
+  border:1px solid; margin-bottom:22px; position:relative; overflow:hidden;
+  animation:fadeUp 0.5s 0.08s both;
+}
+.banner.member { background:rgba(87,242,135,0.04); border-color:rgba(87,242,135,0.2); }
+.banner.guest  { background:rgba(237,66,69,0.04);  border-color:rgba(237,66,69,0.2); }
+.banner::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+}
+.banner.member::before { background:var(--green); }
+.banner.guest::before  { background:var(--red); }
+.banner-icon { font-size:1.4rem; flex-shrink:0; }
+.banner-text h3 { font-size:0.82rem; font-weight:700; letter-spacing:0.05em; margin-bottom:2px; }
+.banner-text p  { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted2); letter-spacing:0.02em; }
+.banner-btn {
+  margin-left:auto; padding:8px 16px; background:var(--disc); border:none;
+  color:#fff; font-family:'Oxanium',sans-serif; font-size:0.68rem; font-weight:700;
+  letter-spacing:0.1em; cursor:pointer; transition:background 0.2s,box-shadow 0.2s;
+  text-decoration:none; white-space:nowrap;
+}
+.banner-btn:hover { background:var(--disc-hover); box-shadow:0 0 16px rgba(88,101,242,0.4); }
+
+/* Cards */
+.cards { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:22px; }
+.card {
+  background:var(--panel); border:1px solid var(--border);
+  padding:18px; position:relative; overflow:hidden;
+  transition:border-color 0.2s,transform 0.2s;
+  animation:fadeUp 0.5s both;
+}
+.card:hover { border-color:rgba(88,101,242,0.22); transform:translateY(-2px); }
+.card-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+.card-icon { font-size:1.3rem; }
+.card-num { font-family:'JetBrains Mono',monospace; font-size:0.55rem; color:var(--muted); text-align:right; }
+.card-num span { display:block; color:var(--disc); font-size:0.95rem; font-weight:700; margin-bottom:1px; }
+.card-title { font-size:0.82rem; font-weight:700; letter-spacing:0.05em; margin-bottom:5px; }
+.card-desc  { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted2); line-height:1.7; }
+.card-tags  { display:flex; gap:5px; margin-top:12px; flex-wrap:wrap; }
+.tag {
+  font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.06em;
+  padding:2px 7px; border:1px solid var(--border); color:var(--muted2); border-radius:2px;
+}
+.tag.b { border-color:rgba(88,101,242,0.3); color:#8a9ff5; }
+.tag.g { border-color:rgba(87,242,135,0.3); color:var(--green); }
+.tag.y { border-color:rgba(254,231,92,0.3);  color:var(--yellow); }
+
+/* Activity */
+.section-title {
+  font-size:0.7rem; font-weight:700; letter-spacing:0.1em;
+  color:var(--muted2); text-transform:uppercase; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.activity-item {
+  display:flex; align-items:center; gap:9px; padding:7px 8px;
+  transition:background 0.15s; border-radius:3px;
+}
+.activity-item:hover { background:rgba(255,255,255,0.02); }
+.a-avatar {
+  width:22px; height:22px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.58rem; font-weight:700; color:#fff;
+}
+.a-text { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted2); line-height:1.4; flex:1; }
+.a-text strong { color:var(--text); }
+.a-time { font-family:'JetBrains Mono',monospace; font-size:0.52rem; color:var(--muted); flex-shrink:0; }
+
+/* RIGHT PANEL */
+.right-panel {
+  background:var(--panel); border-left:1px solid var(--border);
+  overflow-y:auto; padding:18px 14px;
+}
+.right-panel::-webkit-scrollbar { width:3px; }
+.right-panel::-webkit-scrollbar-thumb { background:var(--border); }
+.r-title { font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.22em; color:var(--muted); text-transform:uppercase; margin-bottom:12px; }
+.online-item {
+  display:flex; align-items:center; gap:8px; padding:6px 5px;
+  border-radius:3px; transition:background 0.15s;
+}
+.online-item:hover { background:rgba(255,255,255,0.03); }
+.o-avatar {
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; font-weight:700; color:#fff; position:relative;
+}
+.o-dot { position:absolute; bottom:0; right:0; width:7px; height:7px; border-radius:50%; border:2px solid var(--panel); }
+.d-on { background:var(--green); } .d-idle { background:var(--yellow); } .d-dnd { background:var(--red); }
+.o-name { font-size:0.72rem; font-weight:600; }
+.o-game { font-family:'JetBrains Mono',monospace; font-size:0.54rem; color:var(--muted2); }
+
+.event-item {
+  background:var(--panel2); border:1px solid var(--border);
+  padding:10px 12px; margin-bottom:7px; transition:border-color 0.2s;
+}
+.event-item:hover { border-color:rgba(88,101,242,0.22); }
+.event-type { font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.1em; color:var(--disc); margin-bottom:3px; }
+.event-name { font-size:0.75rem; font-weight:700; margin-bottom:5px; }
+.event-meta { font-family:'JetBrains Mono',monospace; font-size:0.56rem; color:var(--muted2); display:flex; gap:8px; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<div class="hub-layout">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">RAWR</div>
+    <div class="topbar-sep"></div>
+    <nav class="topbar-nav">
+      <button class="active">HUB</button>
+      <button>LFG</button>
+      <button>Ивенты</button>
+      <button>Правила</button>
+    </nav>
+    <div class="topbar-user">
+      <div class="u-avatar" id="uAvatar">
+        <span id="uInitials">?</span>
+        <div class="u-dot"></div>
+      </div>
+      <div>
+        <div class="u-name" id="uName">—</div>
+        <div class="u-tag" id="uTag">#0000</div>
+      </div>
+      <div class="badge" id="uBadge">...</div>
+      <button class="logout-btn" onclick="location.href='/'">✕</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="s-section">
+      <div class="s-label">Навигация</div>
+      <div class="s-item active"><span class="s-icon">⊞</span>HUB</div>
+      <div class="s-item"><span class="s-icon">🎮</span>LFG <span class="s-badge">3</span></div>
+      <div class="s-item"><span class="s-icon">🏆</span>Турниры</div>
+      <div class="s-item"><span class="s-icon">📅</span>Ивенты <span class="s-badge g">1</span></div>
+      <div class="s-item"><span class="s-icon">💬</span>Чат</div>
+    </div>
+    <div class="s-section">
+      <div class="s-label">Игры</div>
+      <div class="s-item"><span class="s-icon">⚡</span>Valorant</div>
+      <div class="s-item"><span class="s-icon">💥</span>CS2</div>
+      <div class="s-item"><span class="s-icon">🔫</span>Apex</div>
+      <div class="s-item"><span class="s-icon">🐉</span>League of Legends</div>
+    </div>
+    <div class="s-section">
+      <div class="s-label">Прочее</div>
+      <div class="s-item"><span class="s-icon">📋</span>Правила</div>
+      <div class="s-item"><span class="s-icon">⚙️</span>Профиль</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="hub-main">
+    <div class="greeting">
+      <h1>Привет, <span id="greetName">—</span> 👋</h1>
+      <p id="greetSub">> загружаем твой профиль...</p>
+    </div>
+
+    <div class="banner" id="banner">
+      <div class="banner-icon" id="bannerIcon">⏳</div>
+      <div class="banner-text">
+        <h3 id="bannerTitle">Проверяем...</h3>
+        <p id="bannerDesc">Подожди секунду</p>
+      </div>
+      <a class="banner-btn" id="bannerBtn" href="https://discord.gg/ЗАМЕНИ_НА_СВОЙ_ИНВАЙТ" target="_blank">Discord</a>
+    </div>
+
+    <div class="cards">
+      <div class="card" style="animation-delay:0.12s">
+        <div class="card-head"><div class="card-icon">🎮</div><div class="card-num"><span>3</span>активных</div></div>
+        <div class="card-title">Party Finder</div>
+        <div class="card-desc">Ищут тиммейтов в Valorant, CS2 и Apex прямо сейчас.</div>
+        <div class="card-tags"><span class="tag b">LFG</span><span class="tag g">Онлайн</span></div>
+      </div>
+      <div class="card" style="animation-delay:0.18s">
+        <div class="card-head"><div class="card-icon">🏆</div><div class="card-num"><span>2</span>скоро</div></div>
+        <div class="card-title">Турниры</div>
+        <div class="card-desc">Valorant Cup #1 стартует в эту пятницу. Регистрация открыта.</div>
+        <div class="card-tags"><span class="tag y">Регистрация</span><span class="tag b">Пятница</span></div>
+      </div>
+      <div class="card" style="animation-delay:0.24s">
+        <div class="card-head"><div class="card-icon">👥</div><div class="card-num"><span>42</span>всего</div></div>
+        <div class="card-title">Сообщество</div>
+        <div class="card-desc">Сервер растёт — ты один из первых кто строит RAWR вместе с нами.</div>
+        <div class="card-tags"><span class="tag g">Растём</span><span class="tag">Early</span></div>
+      </div>
+      <div class="card" style="animation-delay:0.3s">
+        <div class="card-head"><div class="card-icon">📡</div><div class="card-num"><span>7</span>онлайн</div></div>
+        <div class="card-title">Голосовые</div>
+        <div class="card-desc">7 участников сейчас в войсе. Подключайся прямо сейчас.</div>
+        <div class="card-tags"><span class="tag g">Активно</span><span class="tag b">Voice</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Последняя активность</div>
+    <div class="activity-item">
+      <div class="a-avatar" style="background:linear-gradient(135deg,#5865F2,#8a5cf6)">K</div>
+      <div class="a-text"><strong>KiraStar</strong> ищет пати в Valorant — нужен 1 игрок</div>
+      <div class="a-time">2м</div>
+    </div>
+    <div class="activity-item">
+      <div class="a-avatar" style="background:linear-gradient(135deg,#57F287,#3ba55c)">N</div>
+      <div class="a-text"><strong>NovaX</strong> создал ивент: <strong>Кастомки CS2</strong> в субботу</div>
+      <div class="a-time">15м</div>
+    </div>
+    <div class="activity-item">
+      <div class="a-avatar" style="background:linear-gradient(135deg,#FEE75C,#f0a500)">Z</div>
+      <div class="a-text"><strong>ZeroOne</strong> вступил в сервер — поприветствуй!</div>
+      <div class="a-time">1ч</div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div style="margin-bottom:24px">
+      <div class="r-title">Сейчас онлайн</div>
+      <div class="online-item">
+        <div class="o-avatar" style="background:linear-gradient(135deg,#5865F2,#8a5cf6)">K<div class="o-dot d-on"></div></div>
+        <div><div class="o-name">KiraStar</div><div class="o-game">🎮 Valorant</div></div>
+      </div>
+      <div class="online-item">
+        <div class="o-avatar" style="background:linear-gradient(135deg,#57F287,#3ba55c)">N<div class="o-dot d-on"></div></div>
+        <div><div class="o-name">NovaX</div><div class="o-game">💬 В чате</div></div>
+      </div>
+      <div class="online-item">
+        <div class="o-avatar" style="background:linear-gradient(135deg,#FEE75C,#f0a500)">Z<div class="o-dot d-idle"></div></div>
+        <div><div class="o-name">ZeroOne</div><div class="o-game">💤 AFK</div></div>
+      </div>
+      <div class="online-item">
+        <div class="o-avatar" style="background:linear-gradient(135deg,#ED4245,#a12d30)">M<div class="o-dot d-dnd"></div></div>
+        <div><div class="o-name">Mxrk</div><div class="o-game">🔴 Не беспокоить</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="r-title">Ивенты</div>
+      <div class="event-item">
+        <div class="event-type">// ТУРНИР</div>
+        <div class="event-name">Valorant Cup #1</div>
+        <div class="event-meta"><span>📅 Пт</span><span>👥 8/16</span></div>
+      </div>
+      <div class="event-item">
+        <div class="event-type">// КАСТОМКИ</div>
+        <div class="event-name">CS2 Custom Games</div>
+        <div class="event-meta"><span>📅 Сб</span><span>👥 5/10</span></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// Читаем параметры из URL после OAuth редиректа
+const p = new URLSearchParams(location.search);
+const username = p.get('username') || 'Неизвестный';
+const discriminator = p.get('discriminator') || '0';
+const avatarHash = p.get('avatar');
+const userId = p.get('id');
+const isMember = p.get('member') === '1';
+
+// Если нет параметров — редиректим на логин
+if (!p.get('username')) {
+  location.href = '/';
+}
+
+// Заполняем UI
+document.getElementById('greetName').textContent = username;
+document.getElementById('uName').textContent = username;
+document.getElementById('uTag').textContent = discriminator !== '0' ? '#' + discriminator : '';
+document.getElementById('greetSub').textContent = `> сессия активна · ${new Date().toLocaleTimeString('ru')}`;
+
+const initials = username.slice(0,2).toUpperCase();
+document.getElementById('uInitials').textContent = initials;
+
+// Аватар
+if (avatarHash && userId) {
+  const img = document.createElement('img');
+  img.src = `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=64`;
+  img.alt = username;
+  document.getElementById('uAvatar').appendChild(img);
+}
+
+// Бейдж и баннер
+const badge = document.getElementById('uBadge');
+const banner = document.getElementById('banner');
+
+if (isMember) {
+  badge.className = 'badge member';
+  badge.textContent = '✓ УЧАСТНИК';
+  banner.className = 'banner member';
+  document.getElementById('bannerIcon').textContent = '✅';
+  document.getElementById('bannerTitle').textContent = 'Ты участник RAWR';
+  document.getElementById('bannerDesc').textContent = 'Полный доступ открыт. Добро пожаловать в команду!';
+  document.getElementById('bannerBtn').textContent = 'Открыть Discord';
+} else {
+  badge.className = 'badge guest';
+  badge.textContent = '✗ НЕ УЧАСТНИК';
+  banner.className = 'banner guest';
+  document.getElementById('bannerIcon').textContent = '⚠️';
+  document.getElementById('bannerTitle').textContent = 'Тебя нет на сервере RAWR';
+  document.getElementById('bannerDesc').textContent = 'Вступи в Discord — и получишь полный доступ к HUB.';
+  document.getElementById('bannerBtn').textContent = '+ Вступить';
+}
+
+// Навигация
+document.querySelectorAll('.topbar-nav button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.topbar-nav button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+document.querySelectorAll('.s-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.s-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
