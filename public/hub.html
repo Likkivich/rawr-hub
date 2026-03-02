@@ -61,17 +61,7 @@ body{background:var(--bg);color:var(--text);font-family:'Oxanium',sans-serif;}
 .greeting h1 span{color:var(--disc);}
 .greeting p{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted2);}
 
-.banner{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid;margin-bottom:20px;position:relative;overflow:hidden;animation:fadeUp 0.4s 0.06s both;flex-wrap:wrap;}
-.banner.member{background:rgba(87,242,135,0.04);border-color:rgba(87,242,135,0.2);}
-.banner.guest{background:rgba(237,66,69,0.04);border-color:rgba(237,66,69,0.2);}
-.banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.banner.member::before{background:var(--green);}
-.banner.guest::before{background:var(--red);}
-.banner-icon{font-size:1.3rem;flex-shrink:0;}
-.banner-text h3{font-size:0.8rem;font-weight:700;letter-spacing:0.04em;margin-bottom:1px;}
-.banner-text p{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted2);}
-.banner-btn{margin-left:auto;padding:7px 14px;background:var(--disc);border:none;color:#fff;font-family:'Oxanium',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s;text-decoration:none;white-space:nowrap;}
-.banner-btn:hover{background:var(--disc2);}
+
 
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
 .stat-card{background:var(--panel);border:1px solid var(--border);padding:16px;text-align:center;animation:fadeUp 0.4s both;}
@@ -211,15 +201,6 @@ body{background:var(--bg);color:var(--text);font-family:'Oxanium',sans-serif;}
       <div class="greeting">
         <h1>Привет, <span id="greetName">—</span> 👋</h1>
         <p id="greetSub">> загружаем профиль...</p>
-      </div>
-
-      <div class="banner member" id="banner">
-        <div class="banner-icon" id="bannerIcon">⏳</div>
-        <div class="banner-text">
-          <h3 id="bannerTitle">Загружаем...</h3>
-          <p id="bannerDesc"></p>
-        </div>
-        <a class="banner-btn" id="bannerBtn" href="https://discord.gg/RV8HKbEfgM" target="_blank">Discord</a>
       </div>
 
       <div class="stats-row">
@@ -387,6 +368,8 @@ async function loadSession() {
     const res = await fetch('/api/session');
     if (res.status === 401) { window.location.href = '/'; return; }
     const data = await res.json();
+    // Не участник — на страницу вступления
+    if (data.member !== '1') { window.location.href = '/join.html'; return; }
     currentUser = data;
     applyUser(data);
   } catch { window.location.href = '/'; }
@@ -410,28 +393,22 @@ function applyUser(u) {
   }
 
   const badge = document.getElementById('uBadge');
-  badge.className = 'badge ' + (isMember ? 'member' : 'guest');
-  badge.textContent = isMember ? '✓ УЧАСТНИК' : '✗ ГОСТЬ';
+  badge.className = 'badge member';
+  badge.textContent = '✓ УЧАСТНИК';
 
   document.getElementById('greetName').textContent = u.username;
   document.getElementById('greetSub').textContent = `> сессия активна · ${new Date().toLocaleTimeString('ru')}`;
 
-  const banner = document.getElementById('banner');
-  banner.className = 'banner ' + (isMember ? 'member' : 'guest');
-  document.getElementById('bannerIcon').textContent = isMember ? '✅' : '⚠️';
-  document.getElementById('bannerTitle').textContent = isMember ? 'Ты участник RAWR' : 'Ты не на сервере RAWR';
-  document.getElementById('bannerDesc').textContent = isMember ? 'Полный доступ открыт. Добро пожаловать!' : 'Вступи в Discord, чтобы получить доступ.';
-  document.getElementById('bannerBtn').textContent = isMember ? 'Открыть Discord' : '+ Вступить';
 
   document.getElementById('profileName').textContent = u.username;
   document.getElementById('profileTag').textContent = u.discriminator && u.discriminator !== '0' ? '#' + u.discriminator : '';
   document.getElementById('profileInitials').textContent = u.username.slice(0,2).toUpperCase();
   document.getElementById('infoId').textContent = u.id;
-  document.getElementById('infoStatus').textContent = isMember ? 'Участник сервера' : 'Не на сервере';
-  document.getElementById('infoStatus').className = 'info-value ' + (isMember ? 'green' : 'red');
+  document.getElementById('infoStatus').textContent = 'Участник сервера';
+  document.getElementById('infoStatus').className = 'info-value green';
   const pb = document.getElementById('profileBadge');
-  pb.className = 'badge ' + (isMember ? 'member' : 'guest');
-  pb.textContent = isMember ? '✓ УЧАСТНИК' : '✗ ГОСТЬ';
+  pb.className = 'badge member';
+  pb.textContent = '✓ УЧАСТНИК';
 }
 
 async function refreshMembership() {
