@@ -4,480 +4,625 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RAWR HUB</title>
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #06080f; --panel: #0c0f1a; --panel2: #111525;
-  --border: rgba(255,255,255,0.06); --disc: #5865F2; --disc-hover: #7289da;
-  --green: #57F287; --red: #ED4245; --yellow: #FEE75C;
-  --text: #e8edf8; --muted: #4a5070; --muted2: #8890b0;
+  --bg:#06080f; --panel:#0c0f1a; --panel2:#111525;
+  --border:rgba(255,255,255,0.06); --disc:#5865F2; --disc2:#7289da;
+  --green:#57F287; --red:#ED4245; --yellow:#FEE75C;
+  --text:#e8edf8; --muted:#4a5070; --muted2:#8890b0;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { height:100%; overflow:hidden; }
-body { background:var(--bg); color:var(--text); font-family:'Oxanium',sans-serif; }
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Oxanium',sans-serif;}
 
-.bg-grid {
-  position:fixed; inset:0; pointer-events:none;
-  background-image: linear-gradient(rgba(88,101,242,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(88,101,242,0.03) 1px,transparent 1px);
-  background-size:48px 48px;
-}
-.hub-layout {
-  display:grid;
-  grid-template-columns:220px 1fr 260px;
-  grid-template-rows:54px 1fr;
-  height:100vh;
-}
+.bg-grid{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(88,101,242,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(88,101,242,0.03) 1px,transparent 1px);background-size:48px 48px;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:220px 1fr;grid-template-rows:54px 1fr;height:100vh;}
 
 /* TOPBAR */
-.topbar {
-  grid-column:1/-1;
-  background:rgba(12,15,26,0.97);
-  border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:14px; padding:0 20px;
-  backdrop-filter:blur(10px);
-}
-.topbar-logo {
-  font-size:1.25rem; font-weight:800; letter-spacing:0.2em;
-  background:linear-gradient(135deg,#fff,var(--disc));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-.topbar-sep { width:1px; height:18px; background:var(--border); }
-.topbar-nav { display:flex; gap:2px; flex:1; }
-.topbar-nav button {
-  background:none; border:none; font-family:'Oxanium',sans-serif;
-  font-size:0.72rem; font-weight:600; letter-spacing:0.08em;
-  color:var(--muted2); padding:6px 12px; cursor:pointer;
-  transition:color 0.2s,background 0.2s; border-radius:3px;
-}
-.topbar-nav button.active { color:var(--text); background:rgba(88,101,242,0.1); }
-.topbar-nav button:hover { color:var(--text); background:rgba(255,255,255,0.04); }
+.topbar{grid-column:1/-1;background:rgba(12,15,26,0.97);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 16px;backdrop-filter:blur(10px);position:sticky;top:0;z-index:50;}
+.topbar-logo{font-size:1.2rem;font-weight:800;letter-spacing:0.2em;background:linear-gradient(135deg,#fff,var(--disc));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex-shrink:0;}
+.topbar-sep{width:1px;height:18px;background:var(--border);flex-shrink:0;}
 
-.topbar-user {
-  margin-left:auto; display:flex; align-items:center; gap:9px;
-  padding:5px 10px; border:1px solid var(--border); cursor:default;
-  transition:border-color 0.2s;
-}
-.topbar-user:hover { border-color:rgba(88,101,242,0.3); }
-.u-avatar {
-  width:28px; height:28px; border-radius:50%; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  font-size:0.65rem; font-weight:700; color:#fff; position:relative;
-  background:linear-gradient(135deg,var(--disc),#8a5cf6);
-  overflow:hidden;
-}
-.u-avatar img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.u-dot {
-  position:absolute; bottom:0; right:0;
-  width:8px; height:8px; border-radius:50%;
-  background:var(--green); border:2px solid var(--panel);
-}
-.u-name { font-size:0.78rem; font-weight:600; letter-spacing:0.04em; }
-.u-tag { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted2); }
-.badge {
-  font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.08em;
-  padding:2px 7px; border-radius:2px; border:1px solid; white-space:nowrap;
-}
-.badge.member { background:rgba(87,242,135,0.08); border-color:rgba(87,242,135,0.25); color:var(--green); }
-.badge.guest  { background:rgba(237,66,69,0.08);  border-color:rgba(237,66,69,0.25);  color:var(--red); }
-.logout-btn {
-  background:none; border:none; color:var(--muted); cursor:pointer;
-  font-size:0.9rem; padding:4px 6px; transition:color 0.2s; font-family:monospace;
-}
-.logout-btn:hover { color:var(--red); }
+/* Mobile burger */
+.burger{display:none;background:none;border:none;color:var(--muted2);cursor:pointer;padding:6px;font-size:1.2rem;flex-shrink:0;}
+
+.topbar-user{margin-left:auto;display:flex;align-items:center;gap:8px;padding:5px 10px;border:1px solid var(--border);transition:border-color 0.2s;flex-shrink:0;}
+.topbar-user:hover{border-color:rgba(88,101,242,0.3);}
+.u-avatar{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--disc),#8a5cf6);position:relative;overflow:hidden;}
+.u-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.u-dot{position:absolute;bottom:0;right:0;width:7px;height:7px;border-radius:50%;background:var(--green);border:2px solid var(--panel);}
+.u-name{font-size:0.75rem;font-weight:600;letter-spacing:0.03em;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:0.5rem;letter-spacing:0.08em;padding:2px 6px;border-radius:2px;border:1px solid;white-space:nowrap;}
+.badge.member{background:rgba(87,242,135,0.08);border-color:rgba(87,242,135,0.25);color:var(--green);}
+.badge.guest{background:rgba(237,66,69,0.08);border-color:rgba(237,66,69,0.25);color:var(--red);}
+.logout-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:4px 5px;transition:color 0.2s;font-family:monospace;}
+.logout-btn:hover{color:var(--red);}
 
 /* SIDEBAR */
-.sidebar {
-  background:var(--panel); border-right:1px solid var(--border);
-  overflow-y:auto; padding:18px 0;
-}
-.sidebar::-webkit-scrollbar { width:3px; }
-.sidebar::-webkit-scrollbar-thumb { background:var(--border); }
-.s-section { margin-bottom:20px; padding:0 14px; }
-.s-label {
-  font-family:'JetBrains Mono',monospace; font-size:0.52rem;
-  letter-spacing:0.25em; color:var(--muted); text-transform:uppercase;
-  margin-bottom:6px; padding:0 6px;
-}
-.s-item {
-  display:flex; align-items:center; gap:9px; padding:7px 8px;
-  border-radius:3px; cursor:pointer; color:var(--muted2);
-  font-size:0.78rem; font-weight:600; letter-spacing:0.03em;
-  transition:background 0.15s,color 0.15s; position:relative;
-}
-.s-item:hover { background:rgba(255,255,255,0.04); color:var(--text); }
-.s-item.active { background:rgba(88,101,242,0.1); color:var(--text); }
-.s-item.active::before {
-  content:''; position:absolute; left:0; top:4px; bottom:4px;
-  width:2px; background:var(--disc); border-radius:0 2px 2px 0;
-}
-.s-icon { font-size:0.95rem; width:18px; text-align:center; flex-shrink:0; }
-.s-badge {
-  margin-left:auto; background:var(--disc); color:#fff;
-  font-family:'JetBrains Mono',monospace; font-size:0.48rem; font-weight:700;
-  padding:1px 5px; border-radius:8px; min-width:16px; text-align:center;
-}
-.s-badge.g { background:var(--green); color:#000; }
+.sidebar{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;transition:transform 0.3s;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+.s-section{margin-bottom:18px;padding:0 12px;}
+.s-label{font-family:'JetBrains Mono',monospace;font-size:0.5rem;letter-spacing:0.25em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;padding:0 4px;}
+.s-item{display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:3px;cursor:pointer;color:var(--muted2);font-size:0.78rem;font-weight:600;letter-spacing:0.02em;transition:background 0.15s,color 0.15s;position:relative;text-decoration:none;}
+.s-item:hover{background:rgba(255,255,255,0.04);color:var(--text);}
+.s-item.active{background:rgba(88,101,242,0.1);color:var(--text);}
+.s-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--disc);border-radius:0 2px 2px 0;}
+.s-icon{font-size:0.9rem;width:18px;text-align:center;flex-shrink:0;}
 
 /* MAIN */
-.hub-main {
-  background:var(--bg); overflow-y:auto; padding:24px 28px;
-}
-.hub-main::-webkit-scrollbar { width:3px; }
-.hub-main::-webkit-scrollbar-thumb { background:var(--border); }
+.main{overflow-y:auto;padding:24px 24px;}
+.main::-webkit-scrollbar{width:3px;}
+.main::-webkit-scrollbar-thumb{background:var(--border);}
 
-.greeting { margin-bottom:22px; animation:fadeUp 0.5s both; }
-.greeting h1 { font-size:1.5rem; font-weight:800; letter-spacing:0.04em; margin-bottom:3px; }
-.greeting h1 span { color:var(--disc); }
-.greeting p { font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--muted2); letter-spacing:0.04em; }
+.page{display:none;}
+.page.active{display:block;}
+
+/* Greeting */
+.greeting{margin-bottom:20px;animation:fadeUp 0.4s both;}
+.greeting h1{font-size:1.4rem;font-weight:800;letter-spacing:0.04em;margin-bottom:3px;}
+.greeting h1 span{color:var(--disc);}
+.greeting p{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted2);}
 
 /* Status banner */
-.banner {
-  display:flex; align-items:center; gap:12px; padding:14px 18px;
-  border:1px solid; margin-bottom:22px; position:relative; overflow:hidden;
-  animation:fadeUp 0.5s 0.08s both;
-}
-.banner.member { background:rgba(87,242,135,0.04); border-color:rgba(87,242,135,0.2); }
-.banner.guest  { background:rgba(237,66,69,0.04);  border-color:rgba(237,66,69,0.2); }
-.banner::before {
-  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
-}
-.banner.member::before { background:var(--green); }
-.banner.guest::before  { background:var(--red); }
-.banner-icon { font-size:1.4rem; flex-shrink:0; }
-.banner-text h3 { font-size:0.82rem; font-weight:700; letter-spacing:0.05em; margin-bottom:2px; }
-.banner-text p  { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted2); letter-spacing:0.02em; }
-.banner-btn {
-  margin-left:auto; padding:8px 16px; background:var(--disc); border:none;
-  color:#fff; font-family:'Oxanium',sans-serif; font-size:0.68rem; font-weight:700;
-  letter-spacing:0.1em; cursor:pointer; transition:background 0.2s,box-shadow 0.2s;
-  text-decoration:none; white-space:nowrap;
-}
-.banner-btn:hover { background:var(--disc-hover); box-shadow:0 0 16px rgba(88,101,242,0.4); }
+.banner{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid;margin-bottom:20px;position:relative;overflow:hidden;animation:fadeUp 0.4s 0.06s both;flex-wrap:wrap;gap:10px;}
+.banner.member{background:rgba(87,242,135,0.04);border-color:rgba(87,242,135,0.2);}
+.banner.guest{background:rgba(237,66,69,0.04);border-color:rgba(237,66,69,0.2);}
+.banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.banner.member::before{background:var(--green);}
+.banner.guest::before{background:var(--red);}
+.banner-icon{font-size:1.3rem;flex-shrink:0;}
+.banner-text h3{font-size:0.8rem;font-weight:700;letter-spacing:0.04em;margin-bottom:1px;}
+.banner-text p{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted2);}
+.banner-btn{margin-left:auto;padding:7px 14px;background:var(--disc);border:none;color:#fff;font-family:'Oxanium',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s;text-decoration:none;white-space:nowrap;}
+.banner-btn:hover{background:var(--disc2);}
 
-/* Cards */
-.cards { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:22px; }
-.card {
-  background:var(--panel); border:1px solid var(--border);
-  padding:18px; position:relative; overflow:hidden;
-  transition:border-color 0.2s,transform 0.2s;
-  animation:fadeUp 0.5s both;
-}
-.card:hover { border-color:rgba(88,101,242,0.22); transform:translateY(-2px); }
-.card-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
-.card-icon { font-size:1.3rem; }
-.card-num { font-family:'JetBrains Mono',monospace; font-size:0.55rem; color:var(--muted); text-align:right; }
-.card-num span { display:block; color:var(--disc); font-size:0.95rem; font-weight:700; margin-bottom:1px; }
-.card-title { font-size:0.82rem; font-weight:700; letter-spacing:0.05em; margin-bottom:5px; }
-.card-desc  { font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--muted2); line-height:1.7; }
-.card-tags  { display:flex; gap:5px; margin-top:12px; flex-wrap:wrap; }
-.tag {
-  font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.06em;
-  padding:2px 7px; border:1px solid var(--border); color:var(--muted2); border-radius:2px;
-}
-.tag.b { border-color:rgba(88,101,242,0.3); color:#8a9ff5; }
-.tag.g { border-color:rgba(87,242,135,0.3); color:var(--green); }
-.tag.y { border-color:rgba(254,231,92,0.3);  color:var(--yellow); }
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);padding:16px;text-align:center;animation:fadeUp 0.4s both;}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--disc);line-height:1;margin-bottom:4px;}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;color:var(--muted2);text-transform:uppercase;}
 
-/* Activity */
-.section-title {
-  font-size:0.7rem; font-weight:700; letter-spacing:0.1em;
-  color:var(--muted2); text-transform:uppercase; margin-bottom:10px;
-  display:flex; align-items:center; gap:8px;
-}
-.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
-.activity-item {
-  display:flex; align-items:center; gap:9px; padding:7px 8px;
-  transition:background 0.15s; border-radius:3px;
-}
-.activity-item:hover { background:rgba(255,255,255,0.02); }
-.a-avatar {
-  width:22px; height:22px; border-radius:50%; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  font-size:0.58rem; font-weight:700; color:#fff;
-}
-.a-text { font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--muted2); line-height:1.4; flex:1; }
-.a-text strong { color:var(--text); }
-.a-time { font-family:'JetBrains Mono',monospace; font-size:0.52rem; color:var(--muted); flex-shrink:0; }
+/* Channel links */
+.section-title{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;color:var(--muted2);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.channels-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:20px;}
+.channel-card{background:var(--panel);border:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);transition:border-color 0.2s,background 0.2s;animation:fadeUp 0.4s both;}
+.channel-card:hover{border-color:rgba(88,101,242,0.3);background:rgba(88,101,242,0.04);}
+.channel-icon{font-size:1.2rem;flex-shrink:0;}
+.channel-info{}
+.channel-name{font-size:0.8rem;font-weight:700;letter-spacing:0.04em;margin-bottom:2px;}
+.channel-desc{font-family:'JetBrains Mono',monospace;font-size:0.56rem;color:var(--muted2);}
+.channel-arrow{margin-left:auto;color:var(--muted);font-size:0.8rem;}
 
-/* RIGHT PANEL */
-.right-panel {
-  background:var(--panel); border-left:1px solid var(--border);
-  overflow-y:auto; padding:18px 14px;
-}
-.right-panel::-webkit-scrollbar { width:3px; }
-.right-panel::-webkit-scrollbar-thumb { background:var(--border); }
-.r-title { font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.22em; color:var(--muted); text-transform:uppercase; margin-bottom:12px; }
-.online-item {
-  display:flex; align-items:center; gap:8px; padding:6px 5px;
-  border-radius:3px; transition:background 0.15s;
-}
-.online-item:hover { background:rgba(255,255,255,0.03); }
-.o-avatar {
-  width:26px; height:26px; border-radius:50%; flex-shrink:0;
-  display:flex; align-items:center; justify-content:center;
-  font-size:0.65rem; font-weight:700; color:#fff; position:relative;
-}
-.o-dot { position:absolute; bottom:0; right:0; width:7px; height:7px; border-radius:50%; border:2px solid var(--panel); }
-.d-on { background:var(--green); } .d-idle { background:var(--yellow); } .d-dnd { background:var(--red); }
-.o-name { font-size:0.72rem; font-weight:600; }
-.o-game { font-family:'JetBrains Mono',monospace; font-size:0.54rem; color:var(--muted2); }
+/* LFG PAGE */
+.lfg-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.btn-primary{padding:9px 20px;background:var(--disc);border:none;color:#fff;font-family:'Oxanium',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s,box-shadow 0.2s;}
+.btn-primary:hover{background:var(--disc2);box-shadow:0 0 20px rgba(88,101,242,0.3);}
 
-.event-item {
-  background:var(--panel2); border:1px solid var(--border);
-  padding:10px 12px; margin-bottom:7px; transition:border-color 0.2s;
-}
-.event-item:hover { border-color:rgba(88,101,242,0.22); }
-.event-type { font-family:'JetBrains Mono',monospace; font-size:0.52rem; letter-spacing:0.1em; color:var(--disc); margin-bottom:3px; }
-.event-name { font-size:0.75rem; font-weight:700; margin-bottom:5px; }
-.event-meta { font-family:'JetBrains Mono',monospace; font-size:0.56rem; color:var(--muted2); display:flex; gap:8px; }
+/* LFG Form */
+.lfg-form{background:var(--panel);border:1px solid var(--border);padding:20px;margin-bottom:20px;display:none;}
+.lfg-form.open{display:block;animation:fadeUp 0.3s both;}
+.form-title{font-size:0.85rem;font-weight:700;letter-spacing:0.06em;margin-bottom:16px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;letter-spacing:0.1em;color:var(--muted2);text-transform:uppercase;}
+.form-group select,.form-group input,.form-group textarea{background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:0.72rem;padding:8px 10px;outline:none;transition:border-color 0.2s;width:100%;}
+.form-group select:focus,.form-group input:focus,.form-group textarea:focus{border-color:var(--disc);}
+.form-group textarea{resize:none;height:60px;}
+.form-actions{display:flex;gap:8px;margin-top:12px;}
+.btn-cancel{padding:9px 16px;background:none;border:1px solid var(--border);color:var(--muted2);font-family:'Oxanium',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;transition:border-color 0.2s,color 0.2s;}
+.btn-cancel:hover{border-color:var(--muted2);color:var(--text);}
 
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+/* LFG Posts */
+.lfg-posts{display:flex;flex-direction:column;gap:8px;}
+.lfg-post{background:var(--panel);border:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:border-color 0.2s;flex-wrap:wrap;}
+.lfg-post:hover{border-color:rgba(88,101,242,0.2);}
+.post-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--disc),#8a5cf6);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;position:relative;}
+.post-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.post-info{flex:1;min-width:0;}
+.post-user{font-size:0.8rem;font-weight:700;margin-bottom:3px;}
+.post-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.post-tag{font-family:'JetBrains Mono',monospace;font-size:0.55rem;padding:2px 7px;border:1px solid var(--border);color:var(--muted2);border-radius:2px;}
+.post-tag.game{border-color:rgba(88,101,242,0.3);color:#8a9ff5;}
+.post-tag.slots{border-color:rgba(87,242,135,0.3);color:var(--green);}
+.post-comment{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--muted2);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.post-time{font-family:'JetBrains Mono',monospace;font-size:0.52rem;color:var(--muted);flex-shrink:0;}
+.post-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;padding:4px;transition:color 0.2s;flex-shrink:0;}
+.post-delete:hover{color:var(--red);}
+.lfg-empty{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted);text-align:center;padding:40px 20px;border:1px dashed var(--border);}
+
+/* PROFILE PAGE */
+.profile-card{background:var(--panel);border:1px solid var(--border);padding:24px;margin-bottom:16px;display:flex;align-items:center;gap:20px;animation:fadeUp 0.4s both;flex-wrap:wrap;}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--disc),#8a5cf6);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;position:relative;border:2px solid rgba(88,101,242,0.3);}
+.profile-avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.profile-name{font-size:1.3rem;font-weight:800;letter-spacing:0.05em;margin-bottom:4px;}
+.profile-tag{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--muted2);margin-bottom:10px;}
+.profile-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.profile-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;animation:fadeUp 0.4s 0.1s both;}
+.info-item{background:var(--panel);border:1px solid var(--border);padding:14px;}
+.info-label{font-family:'JetBrains Mono',monospace;font-size:0.52rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.info-value{font-size:0.82rem;font-weight:600;}
+.info-value.green{color:var(--green);}
+.info-value.red{color:var(--red);}
+
+/* RULES PAGE */
+.rules-card{background:var(--panel);border:1px solid var(--border);padding:24px;margin-bottom:12px;animation:fadeUp 0.4s both;}
+.rules-card:nth-child(2){animation-delay:0.06s;}
+.rules-card:nth-child(3){animation-delay:0.12s;}
+.rules-card:nth-child(4){animation-delay:0.18s;}
+.rule-num{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--disc);letter-spacing:0.15em;margin-bottom:6px;}
+.rule-title{font-size:0.9rem;font-weight:700;letter-spacing:0.05em;margin-bottom:8px;}
+.rule-text{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--muted2);line-height:1.7;}
+
+/* Loading spinner */
+.spinner{display:flex;justify-content:center;padding:30px;}
+.spin{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--disc);border-radius:50%;animation:spin 0.6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MOBILE */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;grid-template-rows:54px 1fr;}
+  .sidebar{position:fixed;left:0;top:54px;bottom:0;z-index:40;transform:translateX(-100%);width:240px;}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{display:none;position:fixed;inset:0;top:54px;background:rgba(0,0,0,0.5);z-index:39;}
+  .sidebar-overlay.open{display:block;}
+  .burger{display:block;}
+  .u-name{display:none;}
+  .badge{display:none;}
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+  .channels-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .profile-info-grid{grid-template-columns:1fr;}
+  .topbar-sep{display:none;}
+  .main{padding:16px;}
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
-<div class="hub-layout">
-
+<div class="layout">
   <!-- TOPBAR -->
-  <div class="topbar">
+  <header class="topbar">
+    <button class="burger" onclick="toggleSidebar()">☰</button>
     <div class="topbar-logo">RAWR</div>
     <div class="topbar-sep"></div>
-    <nav class="topbar-nav">
-      <button class="active">HUB</button>
-      <button>LFG</button>
-      <button>Ивенты</button>
-      <button>Правила</button>
-    </nav>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted2);letter-spacing:0.1em;" id="topbarPage">HUB</span>
     <div class="topbar-user">
       <div class="u-avatar" id="uAvatar">
         <span id="uInitials">?</span>
         <div class="u-dot"></div>
       </div>
-      <div>
-        <div class="u-name" id="uName">—</div>
-        <div class="u-tag" id="uTag">#0000</div>
-      </div>
+      <div class="u-name" id="uName">—</div>
       <div class="badge" id="uBadge">...</div>
-      <button class="logout-btn" onclick="location.href='/api/logout'">✕</button>
+      <button class="logout-btn" onclick="location.href='/api/logout'" title="Выйти">✕</button>
     </div>
-  </div>
+  </header>
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="s-section">
       <div class="s-label">Навигация</div>
-      <div class="s-item active"><span class="s-icon">⊞</span>HUB</div>
-      <div class="s-item"><span class="s-icon">🎮</span>LFG <span class="s-badge">3</span></div>
-      <div class="s-item"><span class="s-icon">🏆</span>Турниры</div>
-      <div class="s-item"><span class="s-icon">📅</span>Ивенты <span class="s-badge g">1</span></div>
-      <div class="s-item"><span class="s-icon">💬</span>Чат</div>
+      <a class="s-item active" onclick="showPage('home',this)" href="#">
+        <span class="s-icon">⊞</span>HUB
+      </a>
+      <a class="s-item" onclick="showPage('lfg',this)" href="#">
+        <span class="s-icon">🎮</span>LFG — Найти пати
+      </a>
+      <a class="s-item" onclick="showPage('profile',this)" href="#">
+        <span class="s-icon">👤</span>Профиль
+      </a>
+      <a class="s-item" onclick="showPage('rules',this)" href="#">
+        <span class="s-icon">📋</span>Правила
+      </a>
     </div>
     <div class="s-section">
-      <div class="s-label">Игры</div>
-      <div class="s-item"><span class="s-icon">⚡</span>Valorant</div>
-      <div class="s-item"><span class="s-icon">💥</span>CS2</div>
-      <div class="s-item"><span class="s-icon">🔫</span>Apex</div>
-      <div class="s-item"><span class="s-icon">🐉</span>League of Legends</div>
-    </div>
-    <div class="s-section">
-      <div class="s-label">Прочее</div>
-      <div class="s-item"><span class="s-icon">📋</span>Правила</div>
-      <div class="s-item"><span class="s-icon">⚙️</span>Профиль</div>
+      <div class="s-label">Discord каналы</div>
+      <a class="s-item" href="https://discord.gg/ЗАМЕНИ" target="_blank">
+        <span class="s-icon">💬</span>Общий чат ↗
+      </a>
+      <a class="s-item" href="https://discord.gg/ЗАМЕНИ" target="_blank">
+        <span class="s-icon">📢</span>Анонсы ↗
+      </a>
+      <a class="s-item" href="https://discord.gg/ЗАМЕНИ" target="_blank">
+        <span class="s-icon">🔊</span>Войс ↗
+      </a>
     </div>
   </aside>
 
   <!-- MAIN -->
-  <main class="hub-main">
-    <div class="greeting">
-      <h1>Привет, <span id="greetName">—</span> 👋</h1>
-      <p id="greetSub">> загружаем твой профиль...</p>
+  <main class="main" id="main">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+      <div class="greeting">
+        <h1>Привет, <span id="greetName">—</span> 👋</h1>
+        <p id="greetSub">> загружаем профиль...</p>
+      </div>
+
+      <div class="banner member" id="banner">
+        <div class="banner-icon" id="bannerIcon">⏳</div>
+        <div class="banner-text">
+          <h3 id="bannerTitle">Загружаем...</h3>
+          <p id="bannerDesc"></p>
+        </div>
+        <a class="banner-btn" id="bannerBtn" href="https://discord.gg/RV8HKbEfgM" target="_blank">Discord</a>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card" style="animation-delay:0.1s">
+          <div class="stat-num" id="statMembers">—</div>
+          <div class="stat-label">Участников</div>
+        </div>
+        <div class="stat-card" style="animation-delay:0.15s">
+          <div class="stat-num" id="statOnline">—</div>
+          <div class="stat-label">Онлайн</div>
+        </div>
+        <div class="stat-card" style="animation-delay:0.2s">
+          <div class="stat-num" id="statLfg">—</div>
+          <div class="stat-label">Ищут пати</div>
+        </div>
+      </div>
+
+      <div class="section-title">Каналы Discord</div>
+      <div class="channels-grid">
+        <a class="channel-card" href="https://discord.gg/1468287858367533222" target="_blank" style="animation-delay:0.2s">
+          <div class="channel-icon">💬</div>
+          <div class="channel-info">
+            <div class="channel-name"># general</div>
+            <div class="channel-desc">Общий чат сервера</div>
+          </div>
+          <div class="channel-arrow">↗</div>
+        </a>
+        <a class="channel-card" href="https://discord.gg/ЗАМЕНИ" target="_blank" style="animation-delay:0.25s">
+          <div class="channel-icon">🎮</div>
+          <div class="channel-info">
+            <div class="channel-name"># lfg</div>
+            <div class="channel-desc">Поиск пати в Discord</div>
+          </div>
+          <div class="channel-arrow">↗</div>
+        </a>
+        <a class="channel-card" href="https://discord.gg/1475961503847809024" target="_blank" style="animation-delay:0.3s">
+          <div class="channel-icon">📢</div>
+          <div class="channel-info">
+            <div class="channel-name"># анонсы</div>
+            <div class="channel-desc">Новости и обновления</div>
+          </div>
+          <div class="channel-arrow">↗</div>
+        </a>
+        <a class="channel-card" href="https://discord.gg/1468288037195743363" target="_blank" style="animation-delay:0.35s">
+          <div class="channel-icon">🏆</div>
+          <div class="channel-info">
+            <div class="channel-name"># форум</div>
+            <div class="channel-desc">Турниры и обсуждения</div>
+          </div>
+          <div class="channel-arrow">↗</div>
+        </a>
+      </div>
     </div>
 
-    <div class="banner" id="banner">
-      <div class="banner-icon" id="bannerIcon">⏳</div>
-      <div class="banner-text">
-        <h3 id="bannerTitle">Проверяем...</h3>
-        <p id="bannerDesc">Подожди секунду</p>
+    <!-- LFG PAGE -->
+    <div class="page" id="page-lfg">
+      <div class="lfg-header">
+        <div>
+          <div class="greeting" style="margin:0">
+            <h1 style="font-size:1.2rem">🎮 Найти пати</h1>
+          </div>
+          <p style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted2);margin-top:3px">> реальные заявки от участников</p>
+        </div>
+        <button class="btn-primary" onclick="toggleForm()">+ Создать заявку</button>
       </div>
-      <a class="banner-btn" id="bannerBtn" href="https://discord.gg/RV8HKbEfgM" target="_blank">Discord</a>
+
+      <div class="lfg-form" id="lfgForm">
+        <div class="form-title">Новая заявка</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Игра</label>
+            <select id="fGame">
+              <option value="Valorant">Valorant</option>
+              <option value="CS2">CS2</option>
+              <option value="Apex Legends">Apex Legends</option>
+              <option value="League of Legends">League of Legends</option>
+              <option value="Dota 2">Dota 2</option>
+              <option value="Fortnite">Fortnite</option>
+              <option value="Другое">Другое</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Режим</label>
+            <select id="fMode">
+              <option value="Ранговые">Ранговые</option>
+              <option value="Казуальные">Казуальные</option>
+              <option value="Турнир">Турнир</option>
+              <option value="Кастомки">Кастомки</option>
+              <option value="Любой">Любой</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Нужно игроков</label>
+            <select id="fSlots">
+              <option value="1">1 игрок</option>
+              <option value="2">2 игрока</option>
+              <option value="3">3 игрока</option>
+              <option value="4">4 игрока</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Комментарий</label>
+            <input type="text" id="fComment" placeholder="Ранг, требования..." maxlength="100">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="submitLfg()">Опубликовать</button>
+          <button class="btn-cancel" onclick="toggleForm()">Отмена</button>
+        </div>
+      </div>
+
+      <div id="lfgPosts"><div class="spinner"><div class="spin"></div></div></div>
     </div>
 
-    <div class="cards">
-      <div class="card" style="animation-delay:0.12s">
-        <div class="card-head"><div class="card-icon">🎮</div><div class="card-num"><span>3</span>активных</div></div>
-        <div class="card-title">Party Finder</div>
-        <div class="card-desc">Ищут тиммейтов в Valorant, CS2 и Apex прямо сейчас.</div>
-        <div class="card-tags"><span class="tag b">LFG</span><span class="tag g">Онлайн</span></div>
+    <!-- PROFILE PAGE -->
+    <div class="page" id="page-profile">
+      <div class="profile-card">
+        <div class="profile-avatar" id="profileAvatar">
+          <span id="profileInitials">?</span>
+        </div>
+        <div>
+          <div class="profile-name" id="profileName">—</div>
+          <div class="profile-tag" id="profileTag"></div>
+          <div class="profile-badges">
+            <div class="badge" id="profileBadge" style="font-size:0.6rem;padding:3px 9px">...</div>
+          </div>
+        </div>
       </div>
-      <div class="card" style="animation-delay:0.18s">
-        <div class="card-head"><div class="card-icon">🏆</div><div class="card-num"><span>2</span>скоро</div></div>
-        <div class="card-title">Турниры</div>
-        <div class="card-desc">Valorant Cup #1 стартует в эту пятницу. Регистрация открыта.</div>
-        <div class="card-tags"><span class="tag y">Регистрация</span><span class="tag b">Пятница</span></div>
-      </div>
-      <div class="card" style="animation-delay:0.24s">
-        <div class="card-head"><div class="card-icon">👥</div><div class="card-num"><span id="memberCount">...</span>всего</div></div>
-        <div class="card-title">Сообщество</div>
-        <div class="card-desc">Сервер растёт — ты один из первых кто строит RAWR вместе с нами.</div>
-        <div class="card-tags"><span class="tag g">Растём</span><span class="tag" id="onlineCount">... онлайн</span></div>
-      </div>
-      <div class="card" style="animation-delay:0.3s">
-        <div class="card-head"><div class="card-icon">📡</div><div class="card-num"><span>7</span>онлайн</div></div>
-        <div class="card-title">Голосовые</div>
-        <div class="card-desc">7 участников сейчас в войсе. Подключайся прямо сейчас.</div>
-        <div class="card-tags"><span class="tag g">Активно</span><span class="tag b">Voice</span></div>
+      <div class="profile-info-grid">
+        <div class="info-item">
+          <div class="info-label">Discord ID</div>
+          <div class="info-value" id="infoId" style="font-family:'JetBrains Mono',monospace;font-size:0.72rem">—</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Статус</div>
+          <div class="info-value" id="infoStatus">—</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Сессия</div>
+          <div class="info-value green" style="font-size:0.75rem">Активна (7 дней)</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Действие</div>
+          <button class="btn-cancel" onclick="location.href='/api/logout'" style="margin-top:2px;width:100%">Выйти из аккаунта</button>
+        </div>
       </div>
     </div>
 
-    <div class="section-title">Последняя активность</div>
-    <div class="activity-item">
-      <div class="a-avatar" style="background:linear-gradient(135deg,#5865F2,#8a5cf6)">K</div>
-      <div class="a-text"><strong>KiraStar</strong> ищет пати в Valorant — нужен 1 игрок</div>
-      <div class="a-time">2м</div>
+    <!-- RULES PAGE -->
+    <div class="page" id="page-rules">
+      <div class="greeting" style="margin-bottom:20px">
+        <h1 style="font-size:1.2rem">📋 Правила RAWR</h1>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--muted2);margin-top:3px">> соблюдай — и будет хорошо</p>
+      </div>
+      <div class="rules-card">
+        <div class="rule-num">// 01</div>
+        <div class="rule-title">Уважение</div>
+        <div class="rule-text">Относись к каждому участнику с уважением. Никакого токсика, оскорблений, дискриминации по любому признаку. Здесь все равны.</div>
+      </div>
+      <div class="rules-card">
+        <div class="rule-num">// 02</div>
+        <div class="rule-title">Без спама</div>
+        <div class="rule-text">Не флудь в каналах. Используй каналы по назначению. Реклама и самопиар только в отведённых местах.</div>
+      </div>
+      <div class="rules-card">
+        <div class="rule-num">// 03</div>
+        <div class="rule-title">Честная игра</div>
+        <div class="rule-text">Никаких читов, буст-сервисов и прочей нечестной игры. Мы ценим честную конкуренцию и fair play.</div>
+      </div>
+      <div class="rules-card">
+        <div class="rule-num">// 04</div>
+        <div class="rule-title">Конфиденциальность</div>
+        <div class="rule-text">Не публикуй личные данные других участников без их согласия. Скриншоты из приватных чатов — под запретом.</div>
+      </div>
+      <div class="rules-card" style="animation-delay:0.24s">
+        <div class="rule-num">// 05</div>
+        <div class="rule-title">Слушайся модераторов</div>
+        <div class="rule-text">Решения модераторов и администрации окончательны. Если не согласен — обращайся в личку к администратору, не устраивай скандал публично.</div>
+      </div>
     </div>
-    <div class="activity-item">
-      <div class="a-avatar" style="background:linear-gradient(135deg,#57F287,#3ba55c)">N</div>
-      <div class="a-text"><strong>NovaX</strong> создал ивент: <strong>Кастомки CS2</strong> в субботу</div>
-      <div class="a-time">15м</div>
-    </div>
-    <div class="activity-item">
-      <div class="a-avatar" style="background:linear-gradient(135deg,#FEE75C,#f0a500)">Z</div>
-      <div class="a-text"><strong>ZeroOne</strong> вступил в сервер — поприветствуй!</div>
-      <div class="a-time">1ч</div>
-    </div>
+
   </main>
-
-  <!-- RIGHT PANEL -->
-  <aside class="right-panel">
-    <div style="margin-bottom:24px">
-      <div class="r-title">Сейчас онлайн</div>
-      <div class="online-item">
-        <div class="o-avatar" style="background:linear-gradient(135deg,#5865F2,#8a5cf6)">K<div class="o-dot d-on"></div></div>
-        <div><div class="o-name">KiraStar</div><div class="o-game">🎮 Valorant</div></div>
-      </div>
-      <div class="online-item">
-        <div class="o-avatar" style="background:linear-gradient(135deg,#57F287,#3ba55c)">N<div class="o-dot d-on"></div></div>
-        <div><div class="o-name">NovaX</div><div class="o-game">💬 В чате</div></div>
-      </div>
-      <div class="online-item">
-        <div class="o-avatar" style="background:linear-gradient(135deg,#FEE75C,#f0a500)">Z<div class="o-dot d-idle"></div></div>
-        <div><div class="o-name">ZeroOne</div><div class="o-game">💤 AFK</div></div>
-      </div>
-      <div class="online-item">
-        <div class="o-avatar" style="background:linear-gradient(135deg,#ED4245,#a12d30)">M<div class="o-dot d-dnd"></div></div>
-        <div><div class="o-name">Mxrk</div><div class="o-game">🔴 Не беспокоить</div></div>
-      </div>
-    </div>
-    <div>
-      <div class="r-title">Ивенты</div>
-      <div class="event-item">
-        <div class="event-type">// ТУРНИР</div>
-        <div class="event-name">Valorant Cup #1</div>
-        <div class="event-meta"><span>📅 Пт</span><span>👥 8/16</span></div>
-      </div>
-      <div class="event-item">
-        <div class="event-type">// КАСТОМКИ</div>
-        <div class="event-name">CS2 Custom Games</div>
-        <div class="event-meta"><span>📅 Сб</span><span>👥 5/10</span></div>
-      </div>
-    </div>
-  </aside>
 </div>
 
 <script>
-// Загружаем данные сессии из cookie через API
+let currentUser = null;
+
+// Загружаем сессию
 async function loadSession() {
   try {
     const res = await fetch('/api/session');
-    if (res.status === 401) {
-      // Нет сессии — на логин
-      window.location.href = '/';
-      return;
-    }
+    if (res.status === 401) { window.location.href = '/'; return; }
     const data = await res.json();
-    applyUserData(data);
-  } catch {
-    window.location.href = '/';
-  }
+    currentUser = data;
+    applyUser(data);
+  } catch { window.location.href = '/'; }
 }
 
-function applyUserData(data) {
-  const { username, discriminator, avatar, id, member } = data;
-  const isMember = member === '1';
+function applyUser(u) {
+  const isMember = u.member === '1';
 
-  // Заполняем UI
-  document.getElementById('greetName').textContent = username;
-  document.getElementById('uName').textContent = username;
-  document.getElementById('uTag').textContent = discriminator && discriminator !== '0' ? '#' + discriminator : '';
-  document.getElementById('greetSub').textContent = `> сессия активна · ${new Date().toLocaleTimeString('ru')}`;
-
-  const initials = username.slice(0,2).toUpperCase();
-  document.getElementById('uInitials').textContent = initials;
-
-  // Аватар
-  if (avatar && id) {
+  // Topbar
+  document.getElementById('uName').textContent = u.username;
+  document.getElementById('uInitials').textContent = u.username.slice(0,2).toUpperCase();
+  if (u.avatar && u.id) {
     const img = document.createElement('img');
-    img.src = `https://cdn.discordapp.com/avatars/${id}/${avatar}.png?size=64`;
-    img.alt = username;
+    img.src = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64`;
     document.getElementById('uAvatar').appendChild(img);
   }
-
-  // Бейдж и баннер
   const badge = document.getElementById('uBadge');
-  const banner = document.getElementById('banner');
+  badge.className = 'badge ' + (isMember ? 'member' : 'guest');
+  badge.textContent = isMember ? '✓ УЧАСТНИК' : '✗ ГОСТЬ';
 
-  if (isMember) {
-    badge.className = 'badge member';
-    badge.textContent = '✓ УЧАСТНИК';
-    banner.className = 'banner member';
-    document.getElementById('bannerIcon').textContent = '✅';
-    document.getElementById('bannerTitle').textContent = 'Ты участник RAWR';
-    document.getElementById('bannerDesc').textContent = 'Полный доступ открыт. Добро пожаловать в команду!';
-    document.getElementById('bannerBtn').textContent = 'Открыть Discord';
-  } else {
-    badge.className = 'badge guest';
-    badge.textContent = '✗ НЕ УЧАСТНИК';
-    banner.className = 'banner guest';
-    document.getElementById('bannerIcon').textContent = '⚠️';
-    document.getElementById('bannerTitle').textContent = 'Тебя нет на сервере RAWR';
-    document.getElementById('bannerDesc').textContent = 'Вступи в Discord — и получишь полный доступ к HUB.';
-    document.getElementById('bannerBtn').textContent = '+ Вступить';
+  // Greeting
+  document.getElementById('greetName').textContent = u.username;
+  document.getElementById('greetSub').textContent = `> сессия активна · ${new Date().toLocaleTimeString('ru')}`;
+
+  // Banner
+  const banner = document.getElementById('banner');
+  banner.className = 'banner ' + (isMember ? 'member' : 'guest');
+  document.getElementById('bannerIcon').textContent = isMember ? '✅' : '⚠️';
+  document.getElementById('bannerTitle').textContent = isMember ? 'Ты участник RAWR' : 'Ты не на сервере RAWR';
+  document.getElementById('bannerDesc').textContent = isMember ? 'Полный доступ открыт. Добро пожаловать!' : 'Вступи в Discord, чтобы получить доступ.';
+  document.getElementById('bannerBtn').textContent = isMember ? 'Открыть Discord' : '+ Вступить';
+
+  // Profile page
+  document.getElementById('profileName').textContent = u.username;
+  document.getElementById('profileTag').textContent = u.discriminator && u.discriminator !== '0' ? '#' + u.discriminator : '';
+  document.getElementById('profileInitials').textContent = u.username.slice(0,2).toUpperCase();
+  document.getElementById('infoId').textContent = u.id;
+  document.getElementById('infoStatus').textContent = isMember ? 'Участник сервера' : 'Не на сервере';
+  document.getElementById('infoStatus').className = 'info-value ' + (isMember ? 'green' : 'red');
+  const pb = document.getElementById('profileBadge');
+  pb.className = 'badge ' + (isMember ? 'member' : 'guest');
+  pb.textContent = isMember ? '✓ УЧАСТНИК' : '✗ ГОСТЬ';
+  if (u.avatar && u.id) {
+    const img2 = document.createElement('img');
+    img2.src = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=128`;
+    document.getElementById('profileAvatar').appendChild(img2);
   }
 }
 
-loadSession();
-loadGuildStats();
-
+// Загружаем статистику сервера
 async function loadGuildStats() {
   try {
     const res = await fetch('/api/guild');
     if (!res.ok) return;
     const data = await res.json();
-    if (data.member_count) {
-      document.getElementById('memberCount').textContent = data.member_count;
-    }
-    if (data.online_count) {
-      document.getElementById('onlineCount').textContent = data.online_count + ' онлайн';
-    }
+    if (data.member_count) document.getElementById('statMembers').textContent = data.member_count;
+    if (data.online_count) document.getElementById('statOnline').textContent = data.online_count;
+  } catch {}
+}
+
+// LFG
+async function loadLfg() {
+  try {
+    const res = await fetch('/api/lfg-get');
+    const posts = await res.json();
+    renderLfg(posts);
+    document.getElementById('statLfg').textContent = posts.length;
   } catch {
-    // тихо игнорируем если не работает
+    document.getElementById('lfgPosts').innerHTML = '<div class="lfg-empty">Не удалось загрузить заявки</div>';
   }
 }
 
+function renderLfg(posts) {
+  const container = document.getElementById('lfgPosts');
+  if (!posts.length) {
+    container.innerHTML = '<div class="lfg-empty">Заявок пока нет — будь первым! 👆</div>';
+    return;
+  }
+  container.innerHTML = '<div class="lfg-posts">' + posts.map(raw => {
+    const p = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    const isOwn = currentUser && p.userId === currentUser.id;
+    const ago = timeAgo(p.createdAt);
+    const avatarHtml = p.avatar && p.userId
+      ? `<img src="https://cdn.discordapp.com/avatars/${p.userId}/${p.avatar}.png?size=64" alt="">`
+      : p.username.slice(0,2).toUpperCase();
+    return `<div class="lfg-post">
+      <div class="post-avatar">${avatarHtml}</div>
+      <div class="post-info">
+        <div class="post-user">${p.username}</div>
+        <div class="post-meta">
+          <span class="post-tag game">${p.game}</span>
+          <span class="post-tag">${p.mode}</span>
+          <span class="post-tag slots">+${p.slots} игрок${p.slots > 1 ? 'а' : ''}</span>
+        </div>
+        ${p.comment ? `<div class="post-comment">${p.comment}</div>` : ''}
+      </div>
+      <div class="post-time">${ago}</div>
+      ${isOwn ? `<button class="post-delete" onclick="deleteLfg('${p.id}')" title="Удалить">✕</button>` : ''}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function timeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'только что';
+  if (m < 60) return m + 'м';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'ч';
+  return Math.floor(h / 24) + 'д';
+}
+
+function toggleForm() {
+  const form = document.getElementById('lfgForm');
+  form.classList.toggle('open');
+}
+
+async function submitLfg() {
+  const game = document.getElementById('fGame').value;
+  const mode = document.getElementById('fMode').value;
+  const slots = document.getElementById('fSlots').value;
+  const comment = document.getElementById('fComment').value;
+  try {
+    const res = await fetch('/api/lfg-post', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game, mode, slots, comment }),
+    });
+    if (res.ok) {
+      toggleForm();
+      document.getElementById('fComment').value = '';
+      loadLfg();
+    }
+  } catch {}
+}
+
+async function deleteLfg(id) {
+  try {
+    await fetch('/api/lfg-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    loadLfg();
+  } catch {}
+}
+
 // Навигация
-document.querySelectorAll('.topbar-nav button').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.topbar-nav button').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
-document.querySelectorAll('.s-item').forEach(item => {
-  item.addEventListener('click', function() {
-    document.querySelectorAll('.s-item').forEach(i => i.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
+const pageNames = { home: 'HUB', lfg: 'LFG', profile: 'ПРОФИЛЬ', rules: 'ПРАВИЛА' };
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.s-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbarPage').textContent = pageNames[name] || name;
+  if (name === 'lfg') loadLfg();
+  closeSidebar();
+  return false;
+}
+
+// Мобильный сайдбар
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// Инициализация
+loadSession();
+loadGuildStats();
+loadLfg();
 </script>
 </body>
 </html>
