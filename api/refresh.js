@@ -34,16 +34,25 @@ export default async function handler(req, res) {
     const isMember = memberRes.status === 200;
     const oldMember = data.member === '1';
 
-    // Если статус изменился — обновляем cookie
-    if (isMember !== oldMember) {
+    // Получаем роли если участник
+    let roles = [];
+    if (isMember) {
+      const memberData = await memberRes.json();
+      roles = memberData.roles || [];
+    }
+
+    // Если что-то изменилось — обновляем cookie
+    const rolesChanged = JSON.stringify(roles) !== JSON.stringify(data.roles || []);
+    if (isMember !== oldMember || rolesChanged) {
       data.member = isMember ? '1' : '0';
+      data.roles = roles;
       const encoded = Buffer.from(JSON.stringify(data)).toString('base64');
       res.setHeader('Set-Cookie',
         `rawr_session=${encoded}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}`
       );
     }
 
-    res.status(200).json({ member: isMember ? '1' : '0', updated: isMember !== oldMember });
+    res.status(200).json({ member: isMember ? '1' : '0', roles, updated: isMember !== oldMember || rolesChanged });
 
   } catch (err) {
     console.error(err);
