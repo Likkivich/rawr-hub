@@ -58,8 +58,8 @@ export default async function handler(req, res) {
       `rawr_session=${encoded}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}`
     );
 
-    // 5. Редиректим на hub — без данных в URL
-    res.redirect('/hub.html');
+    // 5. Редиректим в зависимости от членства
+    res.redirect(isMember ? '/hub.html' : '/join.html');
 
   } catch (err) {
     console.error(err);
