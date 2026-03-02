@@ -317,10 +317,10 @@ body { background:var(--bg); color:var(--text); font-family:'Oxanium',sans-serif
         <div class="card-tags"><span class="tag y">Регистрация</span><span class="tag b">Пятница</span></div>
       </div>
       <div class="card" style="animation-delay:0.24s">
-        <div class="card-head"><div class="card-icon">👥</div><div class="card-num"><span>42</span>всего</div></div>
+        <div class="card-head"><div class="card-icon">👥</div><div class="card-num"><span id="memberCount">...</span>всего</div></div>
         <div class="card-title">Сообщество</div>
         <div class="card-desc">Сервер растёт — ты один из первых кто строит RAWR вместе с нами.</div>
-        <div class="card-tags"><span class="tag g">Растём</span><span class="tag">Early</span></div>
+        <div class="card-tags"><span class="tag g">Растём</span><span class="tag" id="onlineCount">... онлайн</span></div>
       </div>
       <div class="card" style="animation-delay:0.3s">
         <div class="card-head"><div class="card-icon">📡</div><div class="card-num"><span>7</span>онлайн</div></div>
@@ -447,6 +447,23 @@ function applyUserData(data) {
 }
 
 loadSession();
+loadGuildStats();
+
+async function loadGuildStats() {
+  try {
+    const res = await fetch('/api/guild');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.member_count) {
+      document.getElementById('memberCount').textContent = data.member_count;
+    }
+    if (data.online_count) {
+      document.getElementById('onlineCount').textContent = data.online_count + ' онлайн';
+    }
+  } catch {
+    // тихо игнорируем если не работает
+  }
+}
 
 // Навигация
 document.querySelectorAll('.topbar-nav button').forEach(btn => {
